@@ -15,7 +15,6 @@ class TMP75:
         self.bus = smbus.SMBus(self.i2c_ch)
 
         val = self.bus.read_i2c_block_data(self.i2c_address, self.reg_config, 2)
-        print("OLD CONFIG = ", val)
 
         # Set to 4 Hz sampling (CR1, CR0 = 0b10)
         val[1] = val[1] & 0b00111111
@@ -26,7 +25,6 @@ class TMP75:
 
         # Read CONFIG to verify that we changed it
         val = self.bus.read_i2c_block_data(self.i2c_address, self.reg_config, 2)
-        print("CONFIG = ", val)
 
     # Calculate the 2's complement of a number
     @staticmethod
