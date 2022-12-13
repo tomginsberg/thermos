@@ -12,20 +12,23 @@ from tmp75 import TMP75
 app = Dash(__name__)
 
 tmp75 = TMP75()
-MAX_TIME = 1  # 1 hr
-UPDATE_TIME = 5  # update every 5 seconds
-MAX_ELEMENTS = int(MAX_TIME * 3600 / UPDATE_TIME)
-MAX_TICKS = 10
+MAX_TIME = 3  # 1 hr
+UPDATE_TIME = 1  # update every 20 seconds
+TICK_INTERVAL = 20  # in minutes
 RELAY_PIN = 35
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(RELAY_PIN, GPIO.OUT)
 DEFAULT_TEMP = 20.5
 
-X = deque(maxlen=MAX_ELEMENTS)
-X.append(0)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(RELAY_PIN, GPIO.OUT)
 
-Y = deque(maxlen=MAX_ELEMENTS)
-Y.append(tmp75.read_temp())
+X = list(np.arange(0, int(MAX_TIME * 3600) + 1, UPDATE_TIME))
+X_TICK_VALS = X[::-1][::int(TICK_INTERVAL * 60 / UPDATE_TIME)][::-1]
+# convert to string in hr:min format
+X_TICK_TEXT = [f"{i // 60}:{i % 60:02}" for i in [(MAX_TIME * 60 - i // 60) for i in X_TICK_VALS]]
+X_TICK_TEXT[-1] = "now"
+
+Y = deque(maxlen=len(X))
+Y.extend([tmp75.read_temp()] * len(X))
 
 app.layout = html.Div(
     [
@@ -45,24 +48,26 @@ app.layout = html.Div(
             marks={i: '{}°C'.format(i) for i in range(18, 26)},
             persistence=True
         ),
-        html.Div(id='slider-output-container')
     ]
 )
+
+setpoint = DEFAULT_TEMP
 
 
 @app.callback(
     Output('live-graph', 'figure'),
-    [Input('graph-update', 'n_intervals'), Input('temp-slider', 'value')]
+    [Input('graph-update', 'n_intervals')]
 )
-def update_graph_scatter(n, setpoint):
-    # make the x-axis have a tick every UPDATE_TIME seconds
-    X.append(X[-1] + UPDATE_TIME)
-
+def update_graph_scatter(n):
+    global setpoint
     temp = tmp75.read_temp()
+
     if temp < setpoint:
         GPIO.output(RELAY_PIN, GPIO.HIGH)
     else:
         GPIO.output(RELAY_PIN, GPIO.LOW)
+
+    print(f'Curr temp: {temp}°C | Setpoint: {setpoint}°C | Status: {"ON" if GPIO.input(RELAY_PIN) else "OFF"}')
 
     Y.append(temp)
 
@@ -74,17 +79,11 @@ def update_graph_scatter(n, setpoint):
         marker=dict(opacity=0)
     )
 
-    step = max(1, len(X) // MAX_TICKS)
-    xticks = list((np.array(X) // 60)[::-1])[::step]
-    tickvals = list(X)[::-1][::step][::-1]
-    ticktext = [str(i) for i in xticks]
-    ticktext[-1] = 'now'
-
     xaxis_dict = dict(
-        title='Time (minutes)',
-        tickvals=tickvals,
+        title='Time (hours:minutes)',
+        tickvals=X_TICK_VALS,
         tickmode='array',
-        ticktext=ticktext,
+        ticktext=X_TICK_TEXT,
         range=[X[0], X[-1]]
     )
 
@@ -98,12 +97,13 @@ def update_graph_scatter(n, setpoint):
 
 
 # print slider value
-# @app.callback(Output('slider-output-container', 'children'),
-#               [Input('temp-slider', 'value')])
-# def update_slider(value):
-#     sp.temp = value
-#     return 'Setpoint: {}°C'.format(value)
+@app.callback(Output('temp-slider', 'value'),
+              [Input('temp-slider', 'value')])
+def update_slider(value):
+    global setpoint
+    setpoint = value
+    return value
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', debug=False)
+    app.run_server(host='0.0.0.0', debug=True)
