@@ -4,37 +4,35 @@ import RPi.GPIO as GPIO
 import numpy as np
 import plotly
 import plotly.graph_objs as go
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, dash
 from dash.dependencies import Output, Input
-
-from tmp75 import TMP75
+import json
+from flask import jsonify
+from dash.exceptions import PreventUpdate
 
 app = Dash(__name__)
 
-tmp75 = TMP75()
-MAX_TIME = 3  # n hr
-UPDATE_TIME = 3  # update every n seconds
-TICK_INTERVAL = 20  # in minutes
-RELAY_PIN = 35
-DEFAULT_TEMP = 20.5
+MAX_TIME = 60  # n mins
+UPDATE_TIME = 2  # update every n seconds
+TICK_INTERVAL = 15  # in minutes
 
+SETPOINT = 20.5
+SLIDER_MIN = 16
+SLIDER_MAX = 22
+SLIDER_STEP = 0.5
+SLIDER_TICK_STEP = 1
+
+RELAY_PIN = 35
+
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(RELAY_PIN, GPIO.OUT)
 
-X = list(np.arange(0, int(MAX_TIME * 3600) + 1, UPDATE_TIME))
+X = list(np.arange(0, int(MAX_TIME * 60) + 1, UPDATE_TIME))
 X_TICK_VALS = X[::-1][::int(TICK_INTERVAL * 60 / UPDATE_TIME)][::-1]
 # convert to string in hr:min format
-X_TICK_TEXT = [f"{i // 60}:{i % 60:02}" for i in [(MAX_TIME * 60 - i // 60) for i in X_TICK_VALS]]
+X_TICK_TEXT = [f"{i // 60}:{i % 60:02}" for i in [(MAX_TIME - i // 60) for i in X_TICK_VALS]]
 X_TICK_TEXT[-1] = "now"
-
-Y = deque(maxlen=len(X))
-curr_temp = tmp75.read_temp()
-Y.extend([curr_temp for _ in X])
-
-setpoint = DEFAULT_TEMP
-
-SETPOINT_HISTORY = deque(maxlen=len(X))
-SETPOINT_HISTORY.extend([DEFAULT_TEMP for _ in X])
 
 app.layout = html.Div(
     [
@@ -47,56 +45,41 @@ app.layout = html.Div(
         ),
         dcc.Slider(
             id='temp-slider',
-            min=18,
-            max=25,
-            step=0.5,
-            value=DEFAULT_TEMP,
-            marks={i: '{}°C'.format(i) for i in range(18, 26)},
+            min=SLIDER_MIN,
+            max=SLIDER_MAX,
+            step=SLIDER_STEP,
+            value=SETPOINT,
+            marks={i: '{}°C'.format(i) for i in range(SLIDER_MIN, SLIDER_MAX + 1, SLIDER_TICK_STEP)},
             persistence=True
         ),
+        # hidden div to store data
+        html.Div(id='slider-output-container', style={'display': 'none'}),
     ]
 )
-
-
-def find_change_points(bin_array):
-    """Find the indices where the array changes from 0 to 1 or 1 to 0"""
-    return np.where(np.diff(bin_array) != 0)[0] + 1
 
 
 @app.callback(
     Output('live-graph', 'figure'),
     [Input('graph-update', 'n_intervals')]
 )
-def update_graph_scatter(n):
-    global setpoint, X, Y, SETPOINT_HISTORY
-    temp = tmp75.read_temp()
+def update_graph_scatter(_):
+    try:
+        data = json.load(open('data.json', 'r'))
+    except json.decoder.JSONDecodeError:
+        raise PreventUpdate()
 
-    if temp < setpoint:
-        GPIO.output(RELAY_PIN, GPIO.HIGH)
-    else:
-        GPIO.output(RELAY_PIN, GPIO.LOW)
+    setpoint_data = data['setpoint']
+    temp_data = data['temp']
+    assert len(setpoint_data) == len(temp_data) == len(
+        X), f"Data length mismatch: {len(temp_data)}, {len(setpoint_data)}, {len(X)}"
 
-    print(f'Curr temp: {temp}°C | Setpoint: {setpoint}°C | Status: {"ON" if temp < setpoint else "OFF"}')
+    temp = temp_data[-1]
+    setpoint = setpoint_data[-1]
+    y_min, y_max = min(min(temp_data), min(setpoint_data)) - 1, max(max(temp_data), max(setpoint_data)) + 1
 
-    Y.append(temp)
-    SETPOINT_HISTORY.append(setpoint)
-
-    # data = []
-    # change_points = [0] + find_change_points(RELAY_HISTORY) + [len(RELAY_HISTORY)]
-    # for idx, change_point in enumerate(change_points[:-1]):
-    #     next_change_point = change_points[idx + 1]
-    #     data.append(
-    #         plotly.graph_objs.Scatter(
-    #             x=X[change_point:next_change_point],
-    #             y=Y[change_point:next_change_point],
-    #             mode='lines',
-    #             line=dict(color='red' if RELAY_HISTORY[next_change_point - 1] == 1 else 'blue'),
-    #             showlegend=False
-    #         )
-    #     )
     data = plotly.graph_objs.Scatter(
         x=X,
-        y=list(Y),
+        y=temp_data,
         name='Temperature',
         mode='lines',
         # set color of the line based on RELAY_HISTORY
@@ -105,7 +88,7 @@ def update_graph_scatter(n):
 
     setpoint_data = plotly.graph_objs.Scatter(
         x=X,
-        y=list(SETPOINT_HISTORY),
+        y=setpoint_data,
         name='Setpoint',
         mode='lines',
         line=dict(color='green'),
@@ -119,13 +102,13 @@ def update_graph_scatter(n):
         ticktext=X_TICK_TEXT,
         range=[X[0], X[-1]]
     )
-
+    is_on = GPIO.input(RELAY_PIN) == GPIO.HIGH
     layout = go.Layout(xaxis=xaxis_dict,
                        yaxis=dict(
-                           range=[min(min(Y), min(SETPOINT_HISTORY)) - 1, max(max(Y), max(SETPOINT_HISTORY)) + 1],
+                           range=[y_min, y_max],
                            title='Temperature (°C)\n'),
                        title=f'Set: {setpoint}°C - Current: {temp:.2f}°C'
-                             f' - STATUS: {"ON" if temp < setpoint else "OFF"}',
+                             f' - STATUS: {"ON" if is_on else "OFF"}',
                        legend=dict(
                            yanchor="top",
                            y=0.99,
@@ -137,13 +120,24 @@ def update_graph_scatter(n):
     return {'data': [data, setpoint_data], 'layout': layout}
 
 
-@app.callback(Output('temp-slider', 'value'),
+@app.callback(Output('slider-output-container', 'children'),
               [Input('temp-slider', 'value')])
 def update_slider(value):
-    global setpoint
-    setpoint = value
+    global SETPOINT
+    SETPOINT = value
     return value
 
 
+@app.callback(Output('temp-slider', 'value'),
+              [Input('graph-update', 'n_intervals')])
+def update_slider(_):
+    return SETPOINT
+
+
+@app.server.route('/setpoint')
+def setpoint():
+    return jsonify(SETPOINT)
+
+
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', debug=True)
+    app.run_server(host='0.0.0.0', debug=True, port=8050)

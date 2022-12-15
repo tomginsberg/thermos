@@ -1,11 +1,13 @@
 from controller import TemperatureController
-from time import sleep
 
 
 class OnOffController(TemperatureController):
-    def control_step(self):
-        temp = self.read_temp()
-        if temp < self.setpoint:
+    def control_step(self, temp, setpoint):
+        if temp < setpoint:
+            if not self.heater_state():
+                print(f'Heater turned on. Temp: {temp}°C | Setpoint: {setpoint}°C')
             self.turn_on_heater()
-        else:
+        elif temp >= setpoint:
+            if self.heater_state():
+                print(f'Heater turned off. Temp: {temp}°C | Setpoint: {setpoint}°C')
             self.turn_off_heater()
