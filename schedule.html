@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature and Setpoint History</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.0/dist/flowbite.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+<nav class="bg-gray-900 border-gray-200">
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="index.html" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo"/>
+            <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Trap Schej</span>
+        </a>
+        <button data-collapse-toggle="navbar-default" type="button"
+                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-400 rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+                aria-controls="navbar-default" aria-expanded="false">
+            <span class="sr-only">Open main menu</span>
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M1 1h15M1 7h15M1 13h15"/>
+            </svg>
+        </button>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+            <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg bg-gray-900 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0">
+                <li>
+                    <a href="index.html"
+                       class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0">Set</a>
+
+                </li>
+                <li>
+                    <a href="plot.html" class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0"
+                       aria-current="page">Plot</a>
+                </li>
+                <li>
+                    <a href="schedule.html" class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0">Schedule</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div id="toast-interactive">
+
+</div>
+
+
+<!-- Wrapper div with margin and padding -->
+<div class="bg-gray-800 m-4 p-4 bg-white shadow rounded-lg">
+    <!-- Range Slider Label -->
+    <label for="wakeup-temperature" class="block mb-2 text-sm font-medium text-white">Wakeup Temp</label>
+
+    <!-- Range Slider Input -->
+    <input id="wakeup-temperature" type="range" min="16" max="22" value="19" step="0.5"
+           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+
+    <!-- Labels for each degree with margin at the top -->
+    <div class="flex justify-between text-xs mt-2">
+        <span>16°C</span>
+        <span>17°C</span>
+        <span>18°C</span>
+        <span>19°C</span>
+        <span>20°C</span>
+        <span>21°C</span>
+        <span>22°C</span>
+    </div>
+
+
+    <br>
+    <label for="weekday-wakeup">Weekday time: </label>
+    <input type="time" id="weekday-wakeup" name="weekday-wakeup" class="bg-gray-900 rounded m-4">
+    <br>
+    <label for="weekend-wakeup">Weekend time: </label>
+    <input type="time" id="weekend-wakeup" name="weekend-wakeup" class="bg-gray-900 rounded m-4">
+</div>
+
+<div class="bg-gray-800 m-4 p-4 bg-white shadow rounded-lg">
+    <!-- Range Slider Label -->
+    <label for="work-temperature" class="block mb-2 text-sm font-medium text-white">At Work Temp (Weekdays)</label>
+
+    <!-- Range Slider Input -->
+    <input id="work-temperature" type="range" min="16" max="22" value="19" step="0.5"
+           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+
+    <!-- Labels for each degree with margin at the top -->
+    <div class="flex justify-between text-xs mt-2">
+        <span>16°C</span>
+        <span>17°C</span>
+        <span>18°C</span>
+        <span>19°C</span>
+        <span>20°C</span>
+        <span>21°C</span>
+        <span>22°C</span>
+    </div>
+
+    <br>
+    <label for="weekday-work">Leave time: </label>
+    <input type="time" id="weekday-work" name="weekday-work" class="bg-gray-900 rounded m-4">
+    <br>
+    <label for="weekday-home">Home time: </label>
+    <input type="time" id="weekday-home" name="weekday-home" class="bg-gray-900 rounded m-4">
+
+</div>
+
+<div class="bg-gray-800 m-4 p-4 bg-white shadow rounded-lg">
+    <!-- Range Slider Label -->
+    <label for="bed-temperature" class="block mb-2 text-sm font-medium text-white">Bedtime Temp</label>
+
+    <!-- Range Slider Input -->
+    <input id="bed-temperature" type="range" min="16" max="22" value="19" step="0.5"
+           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+
+    <!-- Labels for each degree with margin at the top -->
+    <div class="flex justify-between text-xs mt-2">
+        <span>16°C</span>
+        <span>17°C</span>
+        <span>18°C</span>
+        <span>19°C</span>
+        <span>20°C</span>
+        <span>21°C</span>
+        <span>22°C</span>
+    </div>
+
+    <br>
+    <label for="weekday-bed">Weekday time: </label>
+    <input type="time" id="weekday-bed" name="weekday-bed" class="bg-gray-900 rounded m-4">
+    <br>
+    <label for="weekend-bed">Weekend time: </label>
+    <input type="time" id="weekend-bed" name="weekend-bed" class="bg-gray-900 rounded m-4">
+
+</div>
+<div class="flex items-center justify-center">
+    <button type="button"
+            class=" m-4 text-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-blue-800"
+            id="update">Update Schedule
+    </button>
+    <!-- Initially, no specific color class is assigned -->
+    <button type="button"
+            class="schedule-toggle m-4 text-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 bg-red-700 hover:bg-red-800 focus:ring-red-800"
+            id="toggle-schedule">Turn Off Schedule
+    </button>
+</div>
+
+
+
+<script>
+    const hostname = `${window.location.protocol}//${window.location.hostname}`;
+    const port = 1111;
+    const apiUrl = `${hostname}:${port}/get_schedule`;
+
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     fetchScheduleState();
+    // });
+
+    // function fetchScheduleState() {
+    //     fetch(`${hostname}:${port}/get_schedule_state`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const button = document.getElementById('toggle-schedule');
+    //             if (data.enabled) {
+    //                 button.textContent = 'Turn Off Schedule';
+    //                 button.classList.add('bg-red-700', 'hover:bg-red-800', 'focus:ring-red-800');
+    //             } else {
+    //                 button.textContent = 'Turn On Schedule';
+    //                 button.classList.add('bg-green-700', 'hover:bg-green-800', 'focus:ring-green-800');
+    //             }
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    // }
+
+    document.getElementById('toggle-schedule').addEventListener('click', () => {
+        const currentState = document.getElementById('toggle-schedule').textContent.includes('On');
+        const button = document.getElementById('toggle-schedule');
+
+        if (currentState) {
+            button.textContent = 'Turn Off Schedule';
+            button.classList.remove('bg-green-700', 'hover:bg-green-800', 'focus:ring-green-800');
+            button.classList.add('bg-red-700', 'hover:bg-red-800', 'focus:ring-red-800');
+        } else {
+            button.textContent = 'Turn On Schedule';
+            button.classList.remove('bg-red-700', 'hover:bg-red-800', 'focus:ring-red-800');
+            button.classList.add('bg-green-700', 'hover:bg-green-800', 'focus:ring-green-800');
+        }
+
+        // fetch(`${hostname}:${port}/toggle_schedule`, {
+        //     method: 'PUT',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({ enabled: !currentState })
+        // })
+        //     .then(response => response.json())
+        //     .then(() => {
+        //         // After toggling, update the button's state
+        //         fetchScheduleState();
+        //     })
+        //     .catch(error => console.error('Error:', error));
+    });
+
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            document.getElementById('wakeup-temperature').value = data.wakeup_temperature;
+            document.getElementById('weekday-wakeup').value = data.weekday_wakeup_time;
+            document.getElementById('weekend-wakeup').value = data.weekend_wakeup_time;
+
+            document.getElementById('work-temperature').value = data.at_work_temperature;
+            document.getElementById('weekday-work').value = data.leave_for_work_time;
+            document.getElementById('weekday-home').value = data.home_from_work_time;
+
+            document.getElementById('bed-temperature').value = data.bedtime_temperature;
+            document.getElementById('weekday-bed').value = data.weekday_bedtime;
+            document.getElementById('weekend-bed').value = data.weekend_bedtime;
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+    document.getElementById('update').addEventListener('click', () => {
+        let data = {
+            schedule: {
+                wakeup_temperature: document.getElementById('wakeup-temperature').value,
+                weekday_wakeup_time: document.getElementById('weekday-wakeup').value,
+                weekend_wakeup_time: document.getElementById('weekend-wakeup').value,
+                at_work_temperature: document.getElementById('work-temperature').value,
+                leave_for_work_time: document.getElementById('weekday-work').value,
+                home_from_work_time: document.getElementById('weekday-home').value,
+                bedtime_temperature: document.getElementById('bed-temperature').value,
+                weekday_bedtime: document.getElementById('weekday-bed').value,
+                weekend_bedtime: document.getElementById('weekend-bed').value
+            }
+        };
+        console.log(data);
+        fetch(`${hostname}:${port}/set_schedule`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                showSuccessNotification();
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
+
+    function showSuccessNotification() {
+        // check of the notification already exists if so remove it
+        const existingNotification = document.getElementById('toast-interactive');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification container
+        const notification = document.createElement('div');
+        notification.id = 'toast-interactive';
+        notification.className = 'mx-auto p-4 fixed top-4 left-4 right-4 z-50 text-gray-400 bg-gray-700 rounded-lg shadow';
+        notification.setAttribute('role', 'alert');
+
+        // Set inner HTML of the notification
+        notification.innerHTML = `
+        <div class="flex items-center justify-center">
+            <div class="text-sm font-normal">
+                <span class="mb-1 text-sm font-semibold text-white">Success!</span>
+                <div class="mb-2 text-sm font-normal">Schedule updated successfully.</div>
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-gray-800 text-gray-500 hover:text-white hover:bg-gray-700 rounded-lg focus:ring-2 focus:ring-gray-700 p-1.5 inline-flex items-center justify-center h-8 w-8" aria-label="Close" onclick="this.parentElement.parentElement.remove();">
+                <span class="sr-only">Close</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    `;
+
+        // Append the notification to the body
+        document.body.appendChild(notification);
+    }
+
+
+
+</script>
+</body>
+</html>

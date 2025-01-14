@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trap Temp</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.0/dist/flowbite.js"></script>
+    <style>
+        /*body {*/
+        /*    background-color: #1F2937; !* bg-gray-800 *!*/
+        /*    color: #FFFFFF; !* White text for better visibility *!*/
+        /*}*/
+
+        #slider-vertical {
+            height: 70vh; /* Full height of the viewport */
+            margin: 50px auto;
+            position: relative;
+        }
+
+        .slider-label {
+            position: absolute;
+            left: 40px; /* Adjusted for better visibility */
+            text-align: right;
+            color: white; /* White text */
+        }
+
+        .temperature-label {
+            color: green; /* Green text for temperature label */
+            position: absolute;
+            left: 40px; /* Adjusted for better visibility */
+            text-align: right;
+            background-color: black; /* Grey background */
+            border: 1px solid black; /* Black border */
+            padding: 2px 5px; /* Some padding around the text */
+            border-radius: 4px;
+        }
+
+
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+<nav class="bg-gray-900 border-gray-200">
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="index.html" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+            <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Trap Controlz</span>
+        </a>
+        <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-400 rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
+            <span class="sr-only">Open main menu</span>
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+            </svg>
+        </button>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+            <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg bg-gray-900 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0">
+                <li>
+                    <a href="index.html" class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0">Set</a>
+
+                </li>
+                <li>
+                    <a href="plot.html" class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0" aria-current="page">Plot</a>
+                </li>
+                <li>
+                    <a href="schedule.html" class="block py-2 px-3 text-white hover:text-green-500 md:border-0 md:p-0">Schedule</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div id="slider-vertical"></div>
+<div id="temperature-label" class="slider-label"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+<script>
+    var slider = document.getElementById('slider-vertical');
+    let hostname = `${window.location.protocol}//${window.location.hostname}`;
+    let sliderMin = 16;
+    let sliderMax = 22;
+
+    noUiSlider.create(slider, {
+        start: 20,
+        orientation: 'vertical',
+        range: {
+            'min': sliderMin,
+            'max': sliderMax
+        },
+        tooltips: true,
+        direction: 'rtl',
+        format: {
+            to: function (value) {
+                return value.toFixed(1);
+            },
+            from: function (value) {
+                return Number(value);
+            }
+        }
+    });
+
+    // Create labels
+    for (let i = sliderMin; i <= sliderMax; i += 1) {
+        const label = document.createElement('div');
+        label.classList.add('slider-label');
+        label.style.bottom = `${(i - sliderMin) / (sliderMax - sliderMin) * 100}%`; // Adjust label position
+        label.innerHTML = `${i}°`;
+        slider.appendChild(label);
+    }
+
+    function updateTemperatureAndHeaterState() {
+        Promise.all([
+            fetch(`${hostname}:1111/get_temperature`).then(res => res.json()),
+            fetch(`${hostname}:1111/get_heater_state`).then(res => res.json())
+        ])
+            .then(([temperatureData, heaterStateData]) => {
+                // Check if a temperature label already exists
+                let existingLabel = document.getElementById('temperature-label');
+                if (existingLabel) {
+                    // Remove the existing label
+                    existingLabel.remove();
+                }
+
+                // Create a new temperature label
+                const label = document.createElement('div');
+                label.id = 'temperature-label'; // Assign a unique ID
+                label.classList.add('temperature-label');
+                label.style.bottom = `${(temperatureData.temperature - sliderMin) / (sliderMax - sliderMin) * 100}%`;
+                label.innerHTML = `${Math.round(temperatureData.temperature * 100) / 100}°C`;
+
+                // Change color based on heater state
+                if (heaterStateData.heater_state) {
+                    label.style.color = 'red'; // Change to bright red
+                } else {
+                    label.style.color = 'blue'; // Change to blue
+                }
+
+                slider.appendChild(label);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Update the temperature and heater state every 500 milliseconds
+    setInterval(updateTemperatureAndHeaterState, 500);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch(`${hostname}:1111/get_setpoint`)
+            .then(response => response.json())
+            .then(data => {
+                slider.noUiSlider.set(data.setpoint);
+            })
+            .catch(error => console.error('Error fetching initial setpoint:', error));
+    });
+
+    slider.noUiSlider.on('change', function (values) {
+        const setpoint = parseFloat(values[0]);
+        fetch(`${hostname}:1111/set_setpoint`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({setpoint: setpoint})
+        })
+            .then(response => response.json())
+            .then(data => console.log('Setpoint updated:', data))
+            .catch(error => console.error('Error updating setpoint:', error));
+    });
+
+    let isDragging = false;
+
+    slider.noUiSlider.on('start', () => {
+        isDragging = true;
+    });
+
+    slider.noUiSlider.on('end', () => {
+        isDragging = false;
+    });
+
+    setInterval(() => {
+        if (isDragging) {
+            return;
+        }
+
+        fetch(`${hostname}:1111/get_setpoint`)
+            .then(response => response.json())
+            .then(data => {
+                const currentSliderValue = parseFloat(slider.noUiSlider.get());
+                const fetchedSetpoint = parseFloat(data.setpoint);
+
+                // Check if the fetched setpoint is different from the current slider value
+                if (currentSliderValue !== fetchedSetpoint) {
+                    slider.noUiSlider.set(fetchedSetpoint);
+                }
+            })
+            .catch(error => console.error('Error fetching setpoint:', error));
+    }, 500); // Check every second
+
+</script>
+</body>
+</html>

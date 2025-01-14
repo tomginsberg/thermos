@@ -1,0 +1,1 @@
+{"weekday": {"bedtime": "23:00:00", "wake_up": "08:00:00", "leave_for_work": "09:30:00", "temp_bedtime": 17.5, "temp_wakeup": 20.5, "temp_leave": 16.5}, "weekend": {"bedtime": "23:00:00", "wake_up": "09:00:00", "temp_bedtime": 15.0, "temp_wakeup": 15.0}}
