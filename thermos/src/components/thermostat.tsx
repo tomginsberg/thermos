@@ -4,11 +4,12 @@ import {useState, useEffect, useRef} from 'react'
 import {Slider} from "@/components/ui/slider"
 import {Button} from "@/components/ui/button"
 import {History, CalendarClock} from 'lucide-react'
+import HistoryButton from "@/components/historyButton.tsx";
 
 const SLIDER_MIN = 16
 const SLIDER_MAX = 22
 const UPDATE_INTERVAL = 500
-const API = 'http://cobalt:1111'
+const API = 'https://heat-api.xpnz.ca'
 
 const marks = Array.from({length: SLIDER_MAX - SLIDER_MIN + 1}, (_, index) => ({
     value: SLIDER_MAX - index,
@@ -134,7 +135,7 @@ export default function Thermostat() {
                         {heaterState ? "ON" : "OFF"}
                     </p>
                 </div>
-                <Button variant="outline" className=" text-xl w-[150px] p-4"><History/> History</Button>
+                <HistoryButton/>
                 <Button variant="outline" className=" text-xl w-[150px] p-4"><CalendarClock/> Schedule</Button>
             </div>
             <div className="h-[70vh] flex items-center">

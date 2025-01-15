@@ -83,10 +83,11 @@ class TemperatureController(ABC):
         self.schedule_enabled = True
         self.log_interval = log_interval
 
-        json.dump({
-            'update_time': self.update_time,
-            'timespan': timespan
-        }, open(config_file, 'w'))
+        with open(config_file, 'w') as f:
+            json.dump({
+                'update_time': self.update_time,
+                'timespan': timespan
+            }, f)
 
         temp = self.read_temp()
         self.temp_history = deque([temp], maxlen=self.max_length)
