@@ -1,5 +1,4 @@
 import Thermostat from '@/components/thermostat'
-import {TemperatureChart} from "@/components/temperatureChart.tsx";
 
 export default function Home() {
     return (
