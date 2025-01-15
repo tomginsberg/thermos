@@ -3,7 +3,7 @@
 import {useState, useEffect, useRef} from 'react'
 import {Slider} from "@/components/ui/slider"
 import {Button} from "@/components/ui/button"
-import {History, CalendarClock} from 'lucide-react'
+import {CalendarClock} from 'lucide-react'
 import HistoryButton from "@/components/historyButton.tsx";
 
 const SLIDER_MIN = 16
