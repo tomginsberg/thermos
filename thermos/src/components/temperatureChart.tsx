@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/chart"
 import {processChartData, generateXAxisTicks, generateYAxisTicks} from '@/lib/processChartData'
 import {Skeleton} from "@/components/ui/skeleton";
+import {useToast} from "@/hooks/use-toast.ts";
 
 const chartConfig = {
     temperature: {
@@ -31,6 +32,7 @@ function formatHourAmPm(date: Date) {
 
 
 export function TemperatureChart({downsampleRate = 10}) {
+    const {toast} = useToast()
     const [chartData, setChartData] = useState([])
     const [xAxisTicks, setXAxisTicks] = useState([])
     const [yAxisTicks, setYAxisTicks] = useState([])
@@ -67,6 +69,11 @@ export function TemperatureChart({downsampleRate = 10}) {
             })
             .catch(error => {
                 console.error('Error fetching or processing data:', error);
+                toast({
+                    title: "Error fetching data",
+                    description: error.message,
+                    variant: "destructive",
+                })
                 setChartData([]);
                 setXAxisTicks([]);
                 setError(error.message);
@@ -84,61 +91,61 @@ export function TemperatureChart({downsampleRate = 10}) {
 
     return (
         <ChartContainer config={chartConfig} className="h-[400px] ">
-                <LineChart
-                    data={chartData}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 10,
-                        bottom: 20,
+            <LineChart
+                data={chartData}
+                margin={{
+                    top: 5,
+                    right: 30,
+                    left: 10,
+                    bottom: 20,
+                }}
+            >
+                <CartesianGrid strokeDasharray="3 3"/>
+                <XAxis
+                    dataKey="time" // the ISO string
+                    tickFormatter={(value: string) => {
+                        // if (value===xAxisTicks[xAxisTicks.length - 1]) {
+                        //     return 'now'}
+                        // parse the ISO string and display "HH:mm"
+                        const date = parseISO(value);
+                        return formatHourAmPm(date);
                     }}
-                >
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis
-                        dataKey="time" // the ISO string
-                        tickFormatter={(value: string) => {
-                            // if (value===xAxisTicks[xAxisTicks.length - 1]) {
-                            //     return 'now'}
-                            // parse the ISO string and display "HH:mm"
-                            const date = parseISO(value);
-                            return formatHourAmPm(date);
-                        }}
-                        ticks={xAxisTicks} // array of ISO strings
-                        // tickCount={6}
-                        tick={{stroke: 'white'}}
-                    />
-                    <YAxis
-                        domain={['dataMin - 0.5', 'dataMax + 0.5']}
-                        ticks={yAxisTicks}
-                        tick={{stroke: 'white'}}
-                        tickFormatter={
-                            (value: number) => `${value}°C`
-                        }
-                    />
-                    <Tooltip
-                        contentStyle={{
-                            backgroundColor: 'rgba(0,0,0)',
-                            borderColor: '#444',
-                            color: '#fff'
-                        }}
-                        labelFormatter={x => `Time: ${format(parseISO(x), 'HH:mm')}`}
-                    />
-                    {/*<ChartTooltip content={<ChartTooltipContent/>} labelFormatter={x => `Time: ${format(x, 'HH:mm')}`}/>*/}
-                    <Line
-                        type="monotone"
-                        dataKey="temperature"
-                        stroke="var(--color-temperature)"
-                        strokeWidth={2}
-                        dot={false}
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="setpoint"
-                        stroke="var(--color-setpoint)"
-                        strokeWidth={2}
-                        dot={false}
-                    />
-                </LineChart>
+                    ticks={xAxisTicks} // array of ISO strings
+                    // tickCount={6}
+                    tick={{stroke: 'white'}}
+                />
+                <YAxis
+                    domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                    ticks={yAxisTicks}
+                    tick={{stroke: 'white'}}
+                    tickFormatter={
+                        (value: number) => `${value}°C`
+                    }
+                />
+                <Tooltip
+                    contentStyle={{
+                        backgroundColor: 'rgba(0,0,0)',
+                        borderColor: '#444',
+                        color: '#fff'
+                    }}
+                    labelFormatter={x => `Time: ${format(parseISO(x), 'HH:mm')}`}
+                />
+                {/*<ChartTooltip content={<ChartTooltipContent/>} labelFormatter={x => `Time: ${format(x, 'HH:mm')}`}/>*/}
+                <Line
+                    type="monotone"
+                    dataKey="temperature"
+                    stroke="var(--color-temperature)"
+                    strokeWidth={2}
+                    dot={false}
+                />
+                <Line
+                    type="monotone"
+                    dataKey="setpoint"
+                    stroke="var(--color-setpoint)"
+                    strokeWidth={2}
+                    dot={false}
+                />
+            </LineChart>
         </ChartContainer>
     )
 }

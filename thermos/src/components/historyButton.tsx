@@ -20,7 +20,7 @@ export default function HistoryButton() {
     return (
         <Drawer>
             <DrawerTrigger asChild>
-                <Button variant="outline" className=" text-xl w-[150px] p-4" onClick={handleDrawerOpen}> <
+                <Button variant="outline" className=" text-xl w-full bg-blue-900 p-4" onClick={handleDrawerOpen}> <
                     History/> History
                 </Button>
             </DrawerTrigger>

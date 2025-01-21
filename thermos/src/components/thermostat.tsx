@@ -2,9 +2,9 @@
 
 import {useState, useEffect, useRef} from 'react'
 import {Slider} from "@/components/ui/slider"
-import {Button} from "@/components/ui/button"
-import {CalendarClock} from 'lucide-react'
-import HistoryButton from "@/components/historyButton.tsx";
+import HistoryButton from "@/components/historyButton";
+import ScheduleButton from "@/components/scheduleButton";
+import {useToast} from "@/hooks/use-toast.ts";
 
 const SLIDER_MIN = 16
 const SLIDER_MAX = 22
@@ -44,6 +44,7 @@ export default function Thermostat() {
     const [heaterState, setHeaterState] = useState(false)
     const [setpoint, setSetpoint] = useState(20)
     const isDraggingRef = useRef(false)
+    const {toast} = useToast()
 
     useEffect(() => {
         const fetchInitialSetpoint = async () => {
@@ -52,12 +53,19 @@ export default function Thermostat() {
                 const data = await response.json()
                 setSetpoint(data.setpoint)
             } catch (error) {
+                toast(
+                    {
+                        title: "Error fetching initial setpoint",
+                        description: `${error}`,
+                        variant: "destructive",
+                    }
+                )
                 console.error('Error fetching initial setpoint:', error)
             }
         }
 
         fetchInitialSetpoint()
-    }, [])
+    }, [toast])
 
     useEffect(() => {
         const updateTemperatureAndHeaterState = async () => {
@@ -98,6 +106,7 @@ export default function Thermostat() {
         return () => clearInterval(intervalId)
     }, [setpoint])
 
+
     const handleSetpointChange = async (newValue: number[]) => {
         const newSetpoint = newValue[0]
         setSetpoint(newSetpoint)
@@ -111,32 +120,39 @@ export default function Thermostat() {
                 body: JSON.stringify({setpoint: newSetpoint})
             })
         } catch (error) {
+            toast(
+                {
+                    title: "Error updating setpoint",
+                    description: `${error}`,
+                    variant: "destructive",
+                }
+            )
             console.error('Error updating setpoint:', error)
         }
     }
 
     return (
-        <div className="flex items-center justify-center gap-12 h-[calc(100vh-56px)]">
+        <div className="flex items-center justify-center gap-12 h-[calc(100vh-56px)] ">
             <div
-                className="bg-zinc-900 shadow-md pb-6 shadow-white p-5  rounded-lg flex flex-col justify-between items-end space-y-16 font-mono text-right">
-                <div>
-                    <h2 className="text-2xl font-bold mb-2">Temperature</h2>
-                    <p className="text-5xl" style={{color: getTemperatureColor(temperature)}}>
+                className="pb-6  rounded-lg flex flex-col justify-start items-center space-y-6 font-mono text-center">
+                <div className="w-full">
+                    <h2 className="text-xl font-bold mb-2">Temperature</h2>
+                    <p className="text-4xl border w-full bg-zinc-800 rounded-lg p-2" style={{color: getTemperatureColor(temperature)}}>
                         {temperature.toFixed(1)}°C
                     </p>
                 </div>
-                <div>
-                    <h2 className="text-2xl font-bold mb-2">Setpoint</h2>
-                    <p className="text-5xl" style={{color: getTemperatureColor(setpoint)}}>{setpoint.toFixed(1)}°C</p>
+                <div className="w-full">
+                    <h2 className="text-xl font-bold mb-2">Setpoint</h2>
+                    <p className="text-4xl border w-full bg-zinc-800 rounded-lg p-2" style={{color: getTemperatureColor(setpoint)}}>{setpoint.toFixed(1)}°C</p>
                 </div>
-                <div>
-                    <h2 className="text-2xl font-bold mb-2">Heater is</h2>
-                    <p className={`text-4xl ${heaterState ? "text-red-500" : "text-blue-500"}`}>
+                <div className="w-full">
+                    <h2 className="text-xl font-bold mb-2">Heater is</h2>
+                    <p className={`text-4xl border  bg-zinc-800 rounded-lg p-2 w-full ${heaterState ? "text-red-500" : "text-blue-500"}`}>
                         {heaterState ? "ON" : "OFF"}
                     </p>
                 </div>
                 <HistoryButton/>
-                <Button variant="outline" className=" text-xl w-[150px] p-4"><CalendarClock/> Schedule</Button>
+                <ScheduleButton/>
             </div>
             <div className="h-[70vh] flex items-center">
                 <div className="relative h-full w-24">
@@ -153,12 +169,12 @@ export default function Thermostat() {
                         orientation="vertical"
                         min={SLIDER_MIN}
                         max={SLIDER_MAX}
-                        step={0.001}
+                        step={0.5}
                         value={[setpoint]}
                         onValueChange={handleSetpointChange}
                         className="h-full data-[orientation=vertical]:w-8 data-[orientation=vertical]:h-full"
                     />
-                    <div className="absolute left-10 top-0 bottom-0 flex flex-col justify-between pointer-events-none">
+                    <div className="absolute left-10 top-0 bottom-0 py-4 flex flex-col justify-between pointer-events-none">
                         {marks.map((mark) => (
                             <div key={mark.value} className="ps-8 flex items-center">
                                 <span className="text-sm text-white">{mark.label}</span>
